@@ -20,18 +20,23 @@ ii. UART回环测试
 python3 -m serial.tools.list_ports
 
 COM6
+
 COM7
+
 2 ports found
 
 $\color{red}{\text{probe-rs list}}$
 
 The following debug probes were found:
+
 [0]: DM-MC02 CMSIS-DAP Demo -- c0de:cafc-0: (CMSIS-DAP)
 
 $\color{red}{\text{python3 host.py COM6 ping}}$
 
 No response. Check that this is the control interface.
+
 //我们是不能肉眼分清哪个是uart，哪个是control port的，就用指令测试
+
 //这个指令的输出，表示COM6其实是uart。COM7才是控制口。
 
 $\color{red}{\text{python3 host.py COM7 ping}}$
@@ -45,7 +50,9 @@ OK DPIDR 6BA02477
 $\color{red}{\text{python3 host.py COM7 uart-loopback}}$
 
 Expected b'HerKules UART\n', received b'ERR SYNTAX\n'
+
 //我发了个错误，测试uart回环时没有调到COM6 uart口，导致
+
 //COM7解析错误命令报错。不过也验证了分清不同接口的重要性
 
 注意：由于同一根 USB-C 数据线也提供两个串口。UART 串口用于转发原始字节，
