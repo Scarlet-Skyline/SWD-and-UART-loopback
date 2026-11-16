@@ -17,27 +17,33 @@ ii. UART回环测试
 
 测试记录：
 
-$\color{red}{\text{python3 -m serial.tools.list_ports}}$
+python3 -m serial.tools.list_ports
+
 COM6
 COM7
 2 ports found
 
 $\color{red}{\text{probe-rs list}}$
+
 The following debug probes were found:
 [0]: DM-MC02 CMSIS-DAP Demo -- c0de:cafc-0: (CMSIS-DAP)
 
 $\color{red}{\text{python3 host.py COM6 ping}}$
+
 No response. Check that this is the control interface.
 //我们是不能肉眼分清哪个是uart，哪个是control port的，就用指令测试
 //这个指令的输出，表示COM6其实是uart。COM7才是控制口。
 
 $\color{red}{\text{python3 host.py COM7 ping}}$
+
 OK DM-MC02
 
 $\color{red}{\text{python3 host.py COM7 swd}}$
+
 OK DPIDR 6BA02477
 
 $\color{red}{\text{python3 host.py COM7 uart-loopback}}$
+
 Expected b'HerKules UART\n', received b'ERR SYNTAX\n'
 //我发了个错误，测试uart回环时没有调到COM6 uart口，导致
 //COM7解析错误命令报错。不过也验证了分清不同接口的重要性
@@ -65,35 +71,13 @@ COM7：control port（控制口）//ping、swd、CAN用这个通道
 电脑和板子之间：靠一根 USB-C 数据线。
 板子自己的引脚之间：靠你插的 杜邦线（PA0接PA14，PA2接PA13）
 
-【电脑】 
-  │ 
-  │ (1) USB线发送 "SWD ID" 命令
-  ▼
-【芯片内部：USB外设】 
-  │ 
-  │ (2) 硬件中断通知 CPU
-  ▼
-【芯片内部：CPU (主脑)】 
-  │ 
-  │ (3) 运行 swd.rs 代码
-  ▼
-【芯片引脚：PA0(时钟) / PA2(数据)】 
-  │ 
-  │ (4) 顺着你插的【杜邦线】流回去
-  ▼
-【芯片引脚：PA14(SWCLK) / PA13(SWDIO)】 
-  │ 
-  │ (5) DAP硬件监听并回应
-  ▼
-【芯片内部：DAP 调试模块】 
-  │ 
-  │ (6) 将 ID 数据吐出，顺着【杜邦线】原路返回
-  ▼
-【芯片引脚：PA2】 ➔ 【CPU读取】 ➔ 【USB外设】 
-  │ 
-  │ (7) 通过 USB 线传回电脑
-  ▼
-【电脑打印结果：OK DPIDR ...】
+【电脑】---(1) USB线发送 "SWD ID" 命令---【芯片内部：USB外设】
+【芯片内部：USB外设】---(2) 硬件中断通知 CPU---【芯片内部：CPU (主脑)】 
+【芯片内部：CPU (主脑)】 ---(3) 运行 swd.rs 代码---【芯片引脚：PA0(时钟) / PA2(数据)】 
+【芯片引脚：PA0(时钟) / PA2(数据)】 ---(4) 顺着你插的【杜邦线】流回去---【芯片引脚：PA14(SWCLK) / PA13(SWDIO)】
+【芯片引脚：PA14(SWCLK) / PA13(SWDIO)】 ---(5) DAP硬件监听并回应---【芯片内部：DAP 调试模块】
+【芯片内部：DAP 调试模块】---(6) 将 ID 数据吐出，顺着【杜邦线】原路返回---【芯片引脚：PA2】 ➔ 【CPU读取】 ➔ 【USB外设】
+【芯片引脚：PA2】 ➔ 【CPU读取】 ➔ 【USB外设】 ---(7) 通过 USB 线传回电脑---【电脑打印结果：OK DPIDR ...】
 
 
 2. uart（usart回环）
